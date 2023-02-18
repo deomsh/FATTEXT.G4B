@@ -43,7 +43,8 @@ Remarks:  Without device/ path, file on/ from root - '/' not mandatory
           Original status of debug, pager, graphicsmode and color restored afterwards
          
 Tricks:   Use ArrowUp for editing, all single edited/copied/cut lines in History
-          Underscore is placeholder for ONE starting space BEFORE ALL other chars: spaces in between and after other chars accepted normally
+          Underscore is placeholder for ONE starting space BEFORE ALL other chars
+           spaces in between and after other chars accepted normally
           Replace is active after a Find, to insert new replace-string use Ctrl+R
           To start with color-preset use menu-item Graphics in Main Menu
 
