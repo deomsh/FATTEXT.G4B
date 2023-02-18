@@ -6,20 +6,32 @@ Highlights:
 - History of opened files included - max 9 files
 - Saving of text files to FAT devices, Save As available
 - Backup of text files, different name possible, inside editor original name unchanged
-- Numbered lines, goto line number available
-- Write/ Add/ Insert/ Edit single lines (max 511 chars)
-- Auto-split lines from 470 chars and above
+- Backup of original files before editing/ saving on device (fd99)
+- Numbered lines, max 9999 lines - above restart numbering
+- Goto line number available (full numbering)
+- Write/ Add/ Insert/ Edit single lines (max 510 chars)
+- Edit: auto-split lines from 470 chars and above
 - Join lines (backwards)
-- Display lines up to 1554 chars
-- Select/ copy/ cut/ paste line, multiple lines too
+- Display lines up to 1554 chars, message otherwise
+- Copy/ Cut/ Paste/ Delete line, Selected multiple lines too
 - Full grub4dos' History Buffer available
-- Original line copied to History Buffer if Edit/ Copy/ Cut a single line (up to 1533 chars)
-- Find string in text file, max 80 chars, number of 'finds' displayed
+- Original line copied to History Buffer if Edit/ Copy/ Cut a single line (up to 3x510 chars)
+- Find string in text file, max 80 chars
+- Goto next found string, number of 'next' displayed
 - Replace/ Delete found string
 - Convert text file type to MS-DOS (default), Unix or (old) Mac
 - Change color: 28 presets available - original color restored after closing
 - Change graphicsmode (640x480 only, 25 lines used) - original color/ graphicsmode restored after closing
 - Saving of configuration and file-history to FATTEXT.DAT
+- Inline help and menu specific Help pages
+- Usual keybard shortcuts available
+
+Unsupported:
+- Files above 255.5 KB
+- Horizontal and vertical TAB's
+- Zero's and terminating zero's in file (00)
+- Replace All
+- Keeping unsaved files in memory
 
 Function: Write and Edit text-files
           Saving on fat-devices only - Filesize max 261631 Bytes (MS-DOS type)
