@@ -88,7 +88,8 @@ if %menu%==O && if %changed%==Y && if %change%==S && set change= && set oldmenu=
 if %menu%==O && if %changed%==Y && if not exist change && set oldmenu= && goto :menu
 if %menu%==O && if %changed%==Y && if not %change%==C && set change= &; echo -n %highcol%Changes are not saved to %device%%%path%%%file% && set oldmenu= && goto :menu
 if %menu%==O && if %changed%==Y && if %change%==C && set change= && set changed=
-if %menu%==O && setlocal && set devorg=%device% && set "pathorg=%path%" && set "fileorg=%file%" && set orggoto=%gotoline% && set orgEOL=%EOL% && call :open &; call :cleanline "0" "23" && call :footer &; if not exist file && set device=%devorg% && set "path=%pathorg%" && set "file=%fileorg%" && set gotoline=%orggoto% && set EOL=%orgEOL% && set menu= ! if "%device%%%path%%%file%"=="%devorg%%%pathorg%%%fileorg%" && set menu= ! set menu=E &; endlocal && set menu=%menu% && set device=%device% && set "path=%path%" && set "file=%file%" && set gotoline=%gotoline% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set zeros=%zeros% &; if exist file && if %menu%==E && if not %zeros%==1 && call :edit ! set oldmenu= && goto :menu
+if %menu%==O && setlocal && set devorg=%device% && set "pathorg=%path%" && set "fileorg=%file%" && set orggoto=%gotoline% && set orgEOL=%EOL% && call :open &; call :cleanline "0" "23" && call :footer &; if not exist file && set device=%devorg% && set "path=%pathorg%" && set "file=%fileorg%" && set gotoline=%orggoto% && set EOL=%orgEOL% && set menu= ! if "%device%%%path%%%file%"=="%devorg%%%pathorg%%%fileorg%" && set menu= ! set menu=E &; endlocal && set menu=%menu% && set device=%device% && set "path=%path%" && set "file=%file%" && set gotoline=%gotoline% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set zeros=%zeros% &; if exist file && if exist gotoline && if %menu%==E && if not %zeros%==1 && set edit= && set stopline= && set showline= && set oldgoto= && call :edit ! if exist file && if %menu%==E && if not %zeros%==1 && call :editor ! set oldmenu= && goto :menu
+#BAD?#if %menu%==O && setlocal && set devorg=%device% && set "pathorg=%path%" && set "fileorg=%file%" && set orggoto=%gotoline% && set orgEOL=%EOL% && call :open &; call :cleanline "0" "23" && call :footer &; if not exist file && set device=%devorg% && set "path=%pathorg%" && set "file=%fileorg%" && set gotoline=%orggoto% && set EOL=%orgEOL% && set menu= ! if "%device%%%path%%%file%"=="%devorg%%%pathorg%%%fileorg%" && set menu= ! set menu=E &; endlocal && set menu=%menu% && set device=%device% && set "path=%path%" && set "file=%file%" && set gotoline=%gotoline% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set zeros=%zeros% &; if exist file && if %menu%==E && if not %zeros%==1 && call :edit ! set oldmenu= && goto :menu
 if %menu%==A && if exist file && call :saveas &; set menu= && set replace=
 if %menu%==B && if exist file && setlocal && call :saveas "BACKUP AS" &; endlocal && set "message=%message%" && set zeros=%zeros% && set menu=
 if %menu%==Q && if %changed%==Y &; call :footer "call Fn.5 0 24"
@@ -1295,48 +1296,49 @@ set /A mddraft=%callsect% + 1 * 2 + %mdread% ;; call :cleanmem "%mddraft%" "%cal
 set /A mdbase1=%mdbase%+10
 #ORG#set /A mdbase1=%mdbase%+0x9 > nul
 set /A mdbase2=%mdbase%+0x4
+set /A mdbuf=%callsect% + 1 * 6 + %mdread% * 0x200 && set /A mdbuflen=256k &; call Fn.24 %mdbuf% 0x00 %mdbuflen%
 if %mode%==file2mdread && call :cleanmem "%mdread%" "%callsect%"
-if %mode%==file2mdread && if exist filelen && if %filelen%>=0x2 &; raw dd if=%device%%%path%%%file% of=(md)%mdread%+%callsect% bs=1 count=%filelen% skip=0 seek=0 > nul && set filelen=
+if %mode%==file2mdread && if exist filelen && if %filelen%>=0x2 &; raw dd if=%device%%%path%%%file% of=(md)%mdread%+%callsect% bs=1 count=%filelen% skip=0 seek=0 buf=%mdbuf% buflen=%mdbuflen% > nul && set filelen=
 if %mode%==mdread2mdbase1 && echo -n > (md)%mdbase1%+3
-if %mode%==mdread2mdbase1 && if exist filelen && if not %filelen%<=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdbase1%+3 bs=1 count=%filelen% skip=%skip% seek=0x0 > nul
+if %mode%==mdread2mdbase1 && if exist filelen && if not %filelen%<=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdbase1%+3 bs=1 count=%filelen% skip=%skip% seek=0x0 buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdread2mdwrite && call :cleanmem "%mdwrite%" "%callsect%"
-if %mode%==mdread2mdwrite && if exist filelen && if not %filelen%<=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 count=%filelen% skip=%skip% seek=0x0 > nul
-if %mode%==mdreadinsertEOL && call :cleanmem "%mdwrite%" "%callsect%" &; set /A filelen=%skip%+%filelen% &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 count=%filelen% skip=0x0 seek=0x0 > nul
+if %mode%==mdread2mdwrite && if exist filelen && if not %filelen%<=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 count=%filelen% skip=%skip% seek=0x0 buf=%mdbuf% buflen=%mdbuflen% > nul
+if %mode%==mdreadinsertEOL && call :cleanmem "%mdwrite%" "%callsect%" &; set /A filelen=%skip%+%filelen% &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 count=%filelen% skip=0x0 seek=0x0 buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdreadinsertEOL && raw write --offset=%filelen% (md)%mdwrite%+%callsect% \x0D\x0A > nul
-if %mode%==mdreadinsertEOL && set /A seekEOL=%filelen%+2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 skip=%filelen% seek=%seekEOL% > nul
+if %mode%==mdreadinsertEOL && set /A seekEOL=%filelen%+2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% bs=1 skip=%filelen% seek=%seekEOL% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdreadinsertEOL && set mode=mdwritefull2mdread
 if %mode%==mdwrite2mdread && call :fileleng "%mdwrite%" "%callsect%" "0x0" &; set /A filelenW=%filelen% &; set /A seekR=%skip%+%filelenW% && if not %filelenW%<=%roomleft% && set "message=Not enough space in memory to paste in %file%, max 255.5 KB" && set mode=EXIT
 if %mode%==mdwrite2mdread && call :fileleng "%mdread%" "%callsect%" "%skip%" &; set /A filelenR=%filelen% &; set /A seekR=%skip%+%filelenW%
-if %mode%==mdwrite2mdread && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% > nul
-if %mode%==mdwrite2mdread && if %filelenR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenR% skip=%skip% seek=%seekR% > nul
-if %mode%==mdwrite2mdread && if %filelenW%>=0x2 &; raw dd if=(md)%mdwrite%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenW% seek=%skip% > nul
+if %mode%==mdwrite2mdread && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% buf=%mdbuf% buflen=%mdbuflen% > nul
+if %mode%==mdwrite2mdread && if %filelenR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenR% skip=%skip% seek=%seekR% buf=%mdbuf% buflen=%mdbuflen% > nul
+if %mode%==mdwrite2mdread && if %filelenW%>=0x2 &; raw dd if=(md)%mdwrite%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenW% seek=%skip% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdwrite2mdread && if not %skip%>=0x2 if not %filelenR%>=0x2 if not %filelenW%>=0x2 || set mode=mddraftfull2mdread
 if %mode%==mdreadfull2mdwrite && call :cleanmem "%mdwrite%" "%callsect%"
-if %mode%==mdreadfull2mdwrite && raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% count=%callsect% > nul
+if %mode%==mdreadfull2mdwrite && raw dd if=(md)%mdread%+%callsect% of=(md)%mdwrite%+%callsect% count=%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdwritefull2mdread && call :cleanmem "%mdread%" "%callsect%"
-if %mode%==mdwritefull2mdread && raw dd if=(md)%mdwrite%+%callsect% of=(md)%mdread%+%callsect% count=%callsect% > nul
+if %mode%==mdwritefull2mdread && raw dd if=(md)%mdwrite%+%callsect% of=(md)%mdread%+%callsect% count=%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdbase22mdread && if not %roomleft%>=0x600 && set "message=Not enough space in %file%, 1536 Bytes needed" && set mode=EXIT
 if %mode%==mdbase22mdread && set /A length=%filelen% &; set /A skipR=%seek% &; set /A seekR=%skipR%+%length% && set /A skipdq=%skip%
-if %mode%==mdbase22mdread && if %skipR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skipR% > nul
+if %mode%==mdbase22mdread && if %skipR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skipR% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdbase22mdread && call :fileleng "%mdread%" "%callsect%" "%skipR%" &; set /A filelenR=%filelen%
-if %mode%==mdbase22mdread && if %filelenR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenR% skip=%skipR% seek=%seekR% > nul
+if %mode%==mdbase22mdread && if %filelenR%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelenR% skip=%skipR% seek=%seekR% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdbase22mdread && if %edit%==E && cat --locate=\x0D\x0A (md)%mdread%+%callsect% > nul &; if %@retval%==1 && if %lastline%==1 && echo -n > (md)%mddraft%+%callsect%
 #BAD????#if %mode%==mdbase22mdread && if %edit%==E && cat --locate=\x0D\x0A (md)%mdread%+%callsect% > nul &; if %@retval%==1 && echo -n > (md)%mddraft%+%callsect%
-if %mode%==mdbase22mdread && if %length%>=0x2 &; raw dd if=(md)%mdbase2%+3 of=(md)%mddraft%+%callsect% bs=1 count=%length% skip=%skipdq% seek=%skipR% > nul
+if %mode%==mdbase22mdread && if %length%>=0x2 &; raw dd if=(md)%mdbase2%+3 of=(md)%mddraft%+%callsect% bs=1 count=%length% skip=%skipdq% seek=%skipR% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdbase22mdread && echo -n > (md)%mdbase2%+3
 if %mode%==mdbase22mdread && if not %skipR%>=0x2 if not %filelenR%>=0x2 if not %length%>=0x2 || set mode=mddraftfull2mdread
 if %mode%==mdreadcutselection && set /A seek=%skip%+%filelen% &; call :fileleng "%mdread%" "%callsect%" "%seek%"
-if %mode%==mdreadcutselection && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% > nul
-if %mode%==mdreadcutselection && if %filelen%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelen% skip=%seek% seek=%skip% > nul
+if %mode%==mdreadcutselection && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% buf=%mdbuf% buflen=%mdbuflen% > nul
+if %mode%==mdreadcutselection && if %filelen%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelen% skip=%seek% seek=%skip% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdreadcutselection && if not %skip%>=0x2 if not %filelen%>=0x2 || set mode=mddraftfull2mdread
 if %mode%==mdreadroomselection && set /A seek=%skip%+%filelen% &; call :fileleng "%mdread%" "%callsect%" "%skip%"
-if %mode%==mdreadroomselection && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% > nul
-if %mode%==mdreadroomselection && if %filelen%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelen% skip=%skip% seek=%seek% > nul
+if %mode%==mdreadroomselection && if %skip%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%skip% buf=%mdbuf% buflen=%mdbuflen% > nul
+if %mode%==mdreadroomselection && if %filelen%>=0x2 &; raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%filelen% skip=%skip% seek=%seek% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mdreadroomselection && if not %skip%>=0x2 if not %filelen%>=0x2 || set mode=mddraftfull2mdread
 if %mode%==mdreadfull2mddraft && call :cleanmem "%mddraft%" "%callsect%"
-if %mode%==mdreadfull2mddraft && raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% count=%callsect% > nul
+if %mode%==mdreadfull2mddraft && raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% count=%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul
 if %mode%==mddraftfull2mdread && call :cleanmem "%mdread%" "%callsect%"
-if %mode%==mddraftfull2mdread && raw dd if=(md)%mddraft%+%callsect% of=(md)%mdread%+%callsect% count=%callsect% > nul && set changed=Y
+if %mode%==mddraftfull2mdread && raw dd if=(md)%mddraft%+%callsect% of=(md)%mdread%+%callsect% count=%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul && set changed=Y
 endlocal && set changed=%changed% && set "message=%message%" && set zeros=%zeros% && goto :eof
 
 :cleanmem
@@ -1397,7 +1399,8 @@ if exist message &; %message%
 endlocal && goto :eof
 
 :open
-setlocal
+setlocal && set * && set mdbase=%mdbase% && set mdread=%mdread% && set callsect=%callsect% && set col=%col% && set vmax=%vmax% && set highcol=%highcol% && set lowcol=%lowcol% && set menu=%menu% && set edit=%edit% && set device=%device% && set "path=%path%" && set "file=%file%" && set changed=%changed% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set gotoline=%gotoline%
+#BAD?#setlocal
 if %edit%==XX && set menu=E
 if %write%==XX && set menu=W
 call :footer
@@ -1436,6 +1439,7 @@ goto :openmenu
 :browsels
 setlocal
 call :cleanline "3" "23"
+set /A mdbuf=%callsect% + 1 * 6 + %mdread% * 0x200 && set /A mdbuflen=256k &; call Fn.24 %mdbuf% 0x00 %mdbuflen%
 set /A mdls=%mdbase%+0x100
 set /A mddraft=%callsect% + 1 * 2 + %mdread%
 set oldevice=%device% && set "oldpath=%path%" && set "oldfile=%file%" && set file=
@@ -1447,8 +1451,9 @@ set "oldpath2=%path%"
 call :header "BROWSE" "%device%%%path%"
 call :cleanline "3" "23" && call Fn.5 0 3
 if not "%path:~-1,1%"=="/" && set "path=%path%/"
-if exist choice && if %l%==0 && if %parent%==Y && cat --locate=\x0A (md)%mddraft%+255 > nul &; set /a c=%@retval% && raw dd if=(md)%mddraft%+255 of=(md)%mdls%+255 > nul && echo -n > (md)%mddraft%+255 && set dirs=%olddirs% && set files=%oldfiles% && set olddirs= && set oldfiles= && set parent= && goto :looplsend
-if exist choice && if %l%>=1 && if not "%path%"=="%oldpath%" && raw dd if=(md)%mdls%+255 of=(md)%mddraft%+255 > nul && set olddirs=%dirs% && set oldfiles=%files% && set parent=Y
+if exist choice && if %l%==0 && if %parent%==Y && cat --locate=\x0A (md)%mddraft%+255 > nul &; set /a c=%@retval% && raw dd if=(md)%mddraft%+255 of=(md)%mdls%+255 buf=%mdbuf% buflen=%mdbuflen% > nul && echo -n > (md)%mddraft%+255 && set dirs=%olddirs% && set files=%oldfiles% && set olddirs= && set oldfiles= && set parent= && goto :looplsend
+if exist choice && if %l%>=1 && if not "%path%"=="%oldpath%" && raw dd if=(md)%mdls%+255 of=(md)%mddraft%+255 buf=%mdbuf% buflen=%mdbuflen% > nul && set olddirs=%dirs% && set oldfiles=%files% && set parent=Y
+#ORG#if exist choice && if %l%>=1 && if not "%path%"=="%oldpath%" && raw dd if=(md)%mdls%+255 of=(md)%mddraft%+255 > nul && set olddirs=%dirs% && set oldfiles=%files% && set parent=Y
 echo -n > (md)%mdls%+255
 if not "%path%"=="/" && pause --wait=0 $[]0$[0x%col:~0,1%%%col:~0,1%].%highcol%%%path:~0,-1% > (md)%mdls%+255 && raw cat --locate=/ (md)%mdls%+255 > nul &; set /a slashnum=%@retval% &; if %slashnum%==1 && pause --wait=0 $[]0$[0x%col:~0,1%%%col:~0,1%].%highcol%/ > (md)%mdls%+255
 if not "%path%"=="/" && if %slashnum%>=2 && raw cat --locate=/ (md)%mdls%+255 > nul &; set /a slashpos=%?% &; set /a slashpos=%slashpos%-19 &; call pause --wait=0 $[]0$[0x%col:~0,1%%%col:~0,1%].%highcol%%%^path:~0,%slashpos%%% > (md)%mdls%+255
@@ -1472,7 +1477,8 @@ if exist foundnum && if exist foundvar &; if %l%<=9 && set prezero=000 ! if %l%<
 if exist foundnum && if exist foundvar && if exist choice && echo -n > (md)%mdbase%+1 && pause --wait=0 %foundvar% > (md)%mdbase%+1 && raw cat --locate=\x5Ct --number=1 (md)%mdbase%+1 > nul &; set /a namelen=%?% &; raw cat --length=%namelen% (md)%mdbase%+1 | set foundvar= &; if "%foundvar:~-4,4%"=="\x20" && set "foundvar=%foundvar:~0,-4%"
 if %mode%==D && if exist foundnum && if exist foundvar && if exist choice && if %l%==0 && set choice=%prezero%%%foundvar% &; set "path=%choice:~22%" && set file= && goto :browselsmenu
 if %mode%==D && if exist foundnum && if exist foundvar && if exist choice && if %l%>=1 && set choice=%prezero%%%foundvar% &; if "%path:~-1,1%"=="/" && set "path=%path%%%choice:~22%" ! set "path=%path%/%choice:~22%" &; call :checkpath "%~1" &; if "%path%"=="%oldpath2%" && set file= && set empty= && set choice= && set l= && call :Fn.5 0 3 && set lsmenu= && goto :lsmenu ! if not %SFN%==N && goto :browselsmenu ! set "path=%oldpath2%" && goto :browselsmenu
-if %mode%==F && if exist foundnum && if exist foundvar && if exist choice && if %l%>=1 && set choice=%prezero%%%foundvar% &; set "file=%choice:~22%" &; if "%path:~-1,1%"=="/" && set "path=%path%" ! if not "%path:~-1,1%"=="/" && set "path=%path%/" &; call :checkfile "%~1" && set /a l=%e%-1 &; if not exist file && goto :lsmenu ! endlocal && set device=%device% && set "path=%path%" && set "file=%file%" && set choice=%choice% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set changed=%changed% && goto :eof
+if %mode%==F && if exist foundnum && if exist foundvar && if exist choice && if %l%>=1 && set choice=%prezero%%%foundvar% &; set "file=%choice:~22%" &; if "%path:~-1,1%"=="/" && set "path=%path%" ! if not "%path:~-1,1%"=="/" && set "path=%path%/" &; call :checkfile "%~1" &; set /a l=%e%-1 &; if not exist file && goto :lsmenu ! endlocal && set device=%device% && set "path=%path%" && set "file=%file%" && set choice=%choice% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set changed=%changed% && set gotoline= && goto :eof
+#ORG#if %mode%==F && if exist foundnum && if exist foundvar && if exist choice && if %l%>=1 && set choice=%prezero%%%foundvar% &; set "file=%choice:~22%" &; if "%path:~-1,1%"=="/" && set "path=%path%" ! if not "%path:~-1,1%"=="/" && set "path=%path%/" &; call :checkfile "%~1" && set /a l=%e%-1 &; if not exist file && goto :lsmenu ! endlocal && set device=%device% && set "path=%path%" && set "file=%file%" && set choice=%choice% && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set changed=%changed% && goto :eof
 if exist foundnum && if exist foundvar && if %l%>=1 && if exist prezero && echo -e %lowcol%%%prezero%%%foundvar%
 if exist foundnum && if exist foundvar && if %l%>=1 && if not exist prezero && echo -e %foundvar%
 if exist foundnum && if exist foundvar && if %l%==0 && echo -e %lowcol%%%prezero%%%highcol%%0 ..
@@ -1542,10 +1548,11 @@ if exist file && endlocal && set device=%device% && set "path=%path%" && set "fi
 
 :checkfile
 setlocal
+set /A mdbuf=%callsect% + 1 * 6 + %mdread% * 0x200 && set /A mdbuflen=256k &; call Fn.24 %mdbuf% 0x00 %mdbuflen%
 set oldEOL=%EOL% && set oldgoto=%gotoline%
 if not %~1==BROWSE && if exist file && set SFN= && call :checksfn "FILE" "%file%" &; if %SFN%==N && echo -n %highcol%. Press a key to continue... && pause --wait=180 && endlocal && set SFN=%SFN% && set choice= && set tryagain=Y && goto :eof
 if %~1==SAVEAS && endlocal && set tryagain=%tryagain% && set "file=%file%" && set "path=%path%" && goto :eof
-if exist %device%%%path%%%file% && set /A mdbackup=%callsect% + 1 * 3 + %mdread% &; call :cleanmem "%mdbackup%" "%callsect%" && raw dd if=(md)%mdread%+%callsect% of=(md)%mdbackup%+%callsect% > nul && call :cleanmem "%mdread%" "%callsect%" &; call :readfile
+if exist %device%%%path%%%file% && set /A mdbackup=%callsect% + 1 * 3 + %mdread% &; call :cleanmem "%mdbackup%" "%callsect%" && raw dd if=(md)%mdread%+%callsect% of=(md)%mdbackup%+%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul && call :cleanmem "%mdread%" "%callsect%" &; call :readfile
 if exist file && if not exist %device%%%path%%%file% && setlocal && set "path=%path%" &; if %@retval%>=31 && set "path=%path:~0,14%..%path:~-14,14%" ! set "path=%path%" &; echo -P:2403 -n %highcol%Abort: file %device%%%path%%%file% not exist && pause --wait=4 && endlocal && set file= && set tryagain=Y && set nogetfil=Y
 if exist file && if exist %device%%%path%%%file% && if not %filesize%<=261631 && echo -P:2403 -n %highcol%Abort: filesize is above 261631 bytes (255.5 KB). Press a key to continue... && pause --wait=180 && set file= && set tryagain=Y && set nogetfil=Y
 if exist file && set message1= &; call :validate
@@ -1557,8 +1564,8 @@ if exist file && if exist openfile && cat --skip=50 (md)%mdfile%+1 | set fullfil
 if exist file && if not %nogetfil%==Y && if %c%>=0 && set /a c=%c%-1 && set /A mdfile=%mdfile%+1 && set fullfile= && goto :loopcheckhistory
 endlocal && set nogetfil=%nogetfil%
 if exist file && if not %device%==(fd99) && if not %nogetfil%==Y && call :getfile "%device%" "%path%" "%file%"
-if exist file if not %tryagain%==Y || raw dd if=(md)%mdbackup%+%callsect% of=(md)%mdread%+%callsect% > nul && set EOL=%oldEOL% && set gotoline=%oldgoto% && set choice=
-if exist file && if not %tryagain%==Y && raw dd if=(md)%mdread%+%callsect% of=(md)%mdbackup%+%callsect% > nul && set changed=
+if exist file if not %tryagain%==Y || raw dd if=(md)%mdbackup%+%callsect% of=(md)%mdread%+%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul && set EOL=%oldEOL% && set gotoline=%oldgoto% && set choice=
+if exist file && if not %tryagain%==Y && raw dd if=(md)%mdread%+%callsect% of=(md)%mdbackup%+%callsect% buf=%mdbuf% buflen=%mdbuflen% > nul && set changed=
 endlocal && set device=%device% && set "path=%path%" && set "file=%file%" && set EOL=%EOL% && set openfile=%openfile% && set donefile=%donefile% && set gotoline=%gotoline% && set changed=%changed% && set "message1=%message1%" && set choice=%choice% && set tryagain=%tryagain% && goto :eof
 
 :openpath
@@ -1850,7 +1857,7 @@ endlocal
 goto :eof
 
 :looplinefeed
-cat --skip=%skip0% --locate=\x0D\x0A --number=1 (md)%mdread%+%callsect% > nul &; set /A length0=%?%-%skip0% &; if %length0%>=1 && raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%length0% skip=%skip0% seek=%seek0% > nul
+cat --skip=%skip0% --locate=\x0D\x0A --number=1 (md)%mdread%+%callsect% > nul &; set /A length0=%?%-%skip0% &; if %length0%>=1 && raw dd if=(md)%mdread%+%callsect% of=(md)%mddraft%+%callsect% bs=1 count=%length0% skip=%skip0% seek=%seek0% buf=%mdbuf% buflen=%mdbuflen% > nul
 if not exist length0 && goto :eof
 set /A seek1=%seek0%+%length0% &; raw write --offset=%seek1% (md)%mddraft%+%callsect% %EOL% > nul && set /A skip1=%skip0%+%length0%+2 && set /A seek1=%seek1%+1 && set /a c=%c%+1
 if exist convert && call :Fn.5 28 1 && echo -n %c% && call Fn.5 0 99
@@ -1988,4 +1995,4 @@ if exist message1 &; %message1% && echo
 if exist message && echo %highcol%%%message%
 if %doneini%==Y && endlocal && set col= && set oldgoto= && set oldfile= && set texthist= && set donefile= ! endlocal && set col=%col% && set oldgoto=%oldgoto% && set "oldfile=%device%%%path%%%file%" && set donefile=%donefile% && set texthist=Y
 delmod fat
-#OKE#echo REACHED LINE 1991
+#OKE#echo REACHED LINE 1998
