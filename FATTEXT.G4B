@@ -1,5 +1,5 @@
 !BAT
-#-#+ FATTEXT.G4B v0.199Zq_VB (20230218), by deomsh
+#-#+ FATTEXT.G4B v0.2 (20230218), by deomsh
 if exist @uefi && echo FATTEXT.G4B v0.2 is not compatible with grub4efi && goto :eof
 setlocal && set /a version=*0x8278 > nul &; if %version%>=20170607 && endlocal ! echo Grub4dos version %version% too old, use version 20170607 or later && endlocal && goto :eof
 setlocal && set /A memsect=*0x8298&0xffffffff * 2 > nul &; if %memsect%>=0x24000 && endlocal ! echo FATTEXT.G4B needs installed memory >= 72 MB && endlocal && goto :eof
