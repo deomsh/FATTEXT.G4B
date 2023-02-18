@@ -33,7 +33,7 @@ Unsupported:
 - Files above 255.5 KB
 - Horizontal and vertical TAB's
 - Long File Names
-- Zero's in file (00) - not supported as End Of Line marker
+- Zero's in file (00) - not supported as End Of Line marker too
 - Replace All
 - Keeping unsaved files in memory
 - Paste below active line
