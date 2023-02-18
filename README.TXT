@@ -36,6 +36,7 @@ Unsupported:
 - Replace All
 - Keeping unsaved files in memory
 - Paste below active line
+- grub4efi
 
 Function: Write and Edit text-files
           Saving on fat-devices only - Filesize max 261631 Bytes (MS-DOS type)
