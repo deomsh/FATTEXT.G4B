@@ -1,4 +1,4 @@
-FATTEXT.G4B v0.2 (20230218), by deomsh
+FATTEXT.G4B v0.2 (20230218)
 
 Highlights:
 - Opening of existing text-files from command-line
