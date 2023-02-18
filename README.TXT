@@ -2,12 +2,14 @@ FATTEXT.G4B v0.2 (20230218), by deomsh
 
 Highlights:
 - Opening of existing text-files from command-line
-- Opening of text-files from menu, browser included
+- Opening of text-files from menu
 - History of opened files included - max 9 files
-- Saving of text files to FAT devices, Save As available
-- Backup of text files, different name possible, inside editor original name unchanged
+- Saving of text files to FAT devices
+- Save As available, not existing path created
+- File/ Folder browser included
+- Backup As of text files, different name possible, inside editor original name unchanged
 - Backup of original files before editing/ saving on device (fd99)
-- Numbered lines, max 9999 lines - above restart numbering
+- Numbered lines, max 9999 lines - restart numbering above
 - Goto line number available (full numbering)
 - Write/ Add/ Insert/ Edit single lines (max 510 chars)
 - Edit: auto-split lines from 470 chars and above
