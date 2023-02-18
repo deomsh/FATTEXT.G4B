@@ -19,7 +19,7 @@ Highlights:
 - Full grub4dos' History Buffer available
 - Original line copied to History Buffer if Edit/ Copy/ Cut a single line (up to 3x510 chars)
 - Find string in text file, max 80 chars
-- Goto next found string, number of 'next' displayed
+- Goto Next found string, number of 'next' displayed
 - Replace/ Delete found string
 - Convert text file type to MS-DOS (default), Unix or (old) Mac
 - Change color: 28 presets available - original color restored after closing
@@ -27,13 +27,15 @@ Highlights:
 - Saving of configuration and file-history to FATTEXT.DAT
 - Inline help and menu specific Help pages
 - Usual keybard shortcuts available
+- Repair of text files with 'mixed' End Of Line markers possible
 
 Unsupported:
 - Files above 255.5 KB
 - Horizontal and vertical TAB's
-- Zero's and terminating zero's in file (00)
+- Zero's in file (00) - not supported as End Of Line marker
 - Replace All
 - Keeping unsaved files in memory
+- Paste below active line
 
 Function: Write and Edit text-files
           Saving on fat-devices only - Filesize max 261631 Bytes (MS-DOS type)
