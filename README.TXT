@@ -37,7 +37,7 @@ Unsupported:
 - Replace All
 - Keeping unsaved files in memory
 - Paste below active line
-- grub4dos 4.6a: versions before 20170607 (and 4.5a-c)
+- grub4dos 4.6a: versions before 20170607 (and all 4.5a-c)
 - grub4efi
 
 Function: Write and Edit text-files
