@@ -1,4 +1,4 @@
-FATTEXT.G4B v0.2 (20230218)
+FATTEXT.G4B v1.0 (20230319)
 
 Highlights:
 - Opening of existing text-files from command-line
@@ -68,5 +68,5 @@ Tricks:   Use ArrowUp for editing, all single edited/copied/cut lines in History
           To start with color-preset use menu-item Graphics in Main Menu
 
 History:
-v0.2
+v1.0
 First published version
