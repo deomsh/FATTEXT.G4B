@@ -178,7 +178,7 @@ setlocal && set * && set mdread=%mdread% && set callsect=%callsect% && set highc
 set "path=%path%" &; if %@retval%>=31 && set "filemsg=%device%%%path:~0,14%..%path:~-14,14%%%file%" ! set "filemsg=%device%%%path%%%file%"
 raw cat --length=0 %device%%%path%%%file% > nul &; set /a filesize=%@retval%
 if %filesize%<=0 && endlocal && set "message1=echo -n %highcol%Abort: %filemsg% is 0 bytes" && goto :eof
-if not %filesize%<=0x3FDFF && endlocal && set "message1=echo -n %highcol%Abort: %filemsg% > 261631 bytes" && goto :eof
+if not %filesize%<=0x3FDFF && endlocal && set "message1=echo -n %highcol%Abort: %filemsg% >=261632 bytes" && goto :eof
 set /A mdbuf=%callsect% + 1 * 6 + %mdread% * 0x200 && set /A mdbuflen=256 * 0x400 &; call Fn.24 %mdbuf% 0x00 %mdbuflen%
 call :cleanmem "%mdread%" "%callsect%" &; raw dd if=%device%%%path%%%file% of=(md)%mdread%+%callsect% bs=1 count=%filesize% buf=%mdbuf% buflen=%mdbuflen% > nul && cmp %device%%%path%%%file% (md)%mdread%+%callsect%,%filesize% > nul && set success=Y ! set "message1=echo -n %highcol%Abort: Read error - try again"
 raw cat --locate=\x00 --number=1 (md)%mdread%+%callsect% > nul ;; set /a memsize=%?% &; if %success%==Y && if not exist memsize && set success= && set "message1=echo -n %highcol%Abort: can not load %filemsg%" ! if %success%==Y && if %memsize%==0 && set success= && set "message1=echo -n %highcol%Abort: can not load %filemsg%" ! if %success%==Y && if not %memsize%==%filesize% && set success= && set "message1=echo -n %highcol%Abort: %filemsg% contains zeros (00)"
