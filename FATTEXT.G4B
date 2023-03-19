@@ -424,7 +424,7 @@ set numcolor=%lowcol% && set addcolor=%lowcol% &; if %col:~0,1%==8 && set nocol=
 if %menu%==E && if not %edit%==M && if not %edit%==XX && if exist gotoline && if %linenum%==%gotoline% && set numcolor=%highcol% && set addcolor=%highcol%
 if %menu%==E && if not %edit%==M && if not %edit%==XX && if exist selrange &; checkrange %selrange% calc %linenum% && set addcolor=%highcol% && set numcolor=%highcol%
 if %menu%==E && if not %edit%==M && if not %edit%==XX && if exist selrange &; checkrange %selrange% calc %linenum% || set numcolor=%lowcol% && set addcolor=%lowcol%
-#-# Works in combination with extra tweaks in :edit en :noshowmd; special routine if %edit%==A/I and I: next full line is >=stopline; II: next part of line is >=stopline
+#-# Works in combination with extra tweaks in :edit en :noshowmd; special routine if %edit%==A/I/W and 1: next full line is >=stopline; 2: next part of line is >=stopline
 if %menu%==E &; if not %edit%==M if not %edit%==XX || if exist gotoline && if %linenum%==%gotoline% && set numcolor=$[] && set addcolor=$[]
 if %linenum%<=%lastline% &; if %linenum%<=9 && set echonum=000%linenum% ! if %linenum%<=99 && set echonum=00%linenum% ! if %linenum%<=999 && set echonum=0%linenum% ! if %linenum%<=9999 && set echonum=%linenum% ! set echonum=%linenum:~-4,4%
 if %gotoline%==%linenum% &; call Fn.4 &; set /a cursor=%@retval%>>8
